@@ -10,14 +10,23 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <i class="fas fa-bug"></i> BUZZLY AI 
+            <a href="https://pollinations.ai/" target="_blank">
+                <img src="icons/pollinations.png" alt="Pollinations Logo" class="pollinations-logo">
+            </a>
+            <span id="buzzly-ai-text" class="header-title">BUZZLY AI</span>
+            <select id="language-selector">
+                <option value="it">Italiano</option>
+                <option value="en">English</option>
+            </select>
         </div>
         <div class="chat-messages"></div>
         <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Scrivi il tuo messaggio...">
+            <input type="text" id="user-input" placeholder="Scrivi un messaggio a Buzzly AI...">
             <button id="send-btn">Invia</button>
+            <button id="clear-btn">Pulisci</button>
         </div>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
+
