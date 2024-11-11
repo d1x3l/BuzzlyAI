@@ -44,6 +44,14 @@ function addMessage(content, sender, imageUrl = '') {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+function clearChat() {
+    chatMessages.innerHTML = '';
+    addMessage("Ciao! Sono Buzzly AI, il tuo assistente virtuale. Come posso aiutarti oggi?", 'bot');
+}
+
+const clearBtn = document.getElementById("clear-btn");
+clearBtn.addEventListener("click", clearChat);
+
 function appendLoadingAnimation() {
     const loadingDiv = document.createElement("div");
     loadingDiv.classList.add("message", "bot", "loading");
@@ -102,10 +110,10 @@ async function generateResponse(message, loadingDiv) {
     } catch (error) {
         console.error('Errore nella generazione della risposta:', error);
         loadingDiv.remove();
-        addMessage("Mi scuso, c'è stato un errore nel generare la risposta.", 'bot');
+        addMessage("C'è stato un errore nel generare la risposta.", 'bot');
     }
 }
-
+    
 const userInput = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 const chatMessages = document.querySelector(".chat-messages");
