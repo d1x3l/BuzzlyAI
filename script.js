@@ -1,6 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
-    addMessage("Ciao! Sono Buzzly AI, il tuo assistente virtuale. Come posso aiutarti oggi?", 'bot');
+    addMessage(getWelcomeMessage(), 'bot');
 });
+
+let currentLanguage = 'it';
+
+const languageSelector = document.getElementById("language-selector");
+languageSelector.addEventListener("change", (event) => {
+    currentLanguage = event.target.value;
+    clearChat();
+    updateUI();
+});
+
+function getWelcomeMessage() {
+    if (currentLanguage === 'en') {
+        return "Hello! I'm Buzzly AI, your virtual assistant. How can I help you today?";
+    }
+    return "Ciao! Sono Buzzly AI, il tuo assistente virtuale. Come posso aiutarti oggi?";
+}
+
+function updateUI() {
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const clearBtn = document.getElementById("clear-btn");
+
+    if (currentLanguage === 'en') {
+        userInput.placeholder = "Type a message to Buzzly AI...";
+        sendBtn.textContent = "Send";
+        clearBtn.textContent = "Clear";
+    } else {
+        userInput.placeholder = "Scrivi un messaggio a Buzzly AI...";
+        sendBtn.textContent = "Invia";
+        clearBtn.textContent = "Pulisci";
+    }
+}
 
 function addMessage(content, sender, imageUrl = '') {
     const messageElement = document.createElement('div');
@@ -46,7 +78,7 @@ function addMessage(content, sender, imageUrl = '') {
 
 function clearChat() {
     chatMessages.innerHTML = '';
-    addMessage("Ciao! Sono Buzzly AI, il tuo assistente virtuale. Come posso aiutarti oggi?", 'bot');
+    addMessage(getWelcomeMessage(), 'bot');
 }
 
 const clearBtn = document.getElementById("clear-btn");
@@ -91,9 +123,8 @@ async function sendMessage() {
 
 async function generateResponse(message, loadingDiv) {
     try {
-        let responseData;
 
-        if (/\b(genera|disegna|crea|immagine|foto)\b/i.test(message)) {
+        if (/\b(genera|disegna|immagine|foto|generate|draw|image|photo|generates)\b/i.test(message)) {
             const imageResponse = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(message)}?nologo=true`);
             const imageBlob = await imageResponse.blob();
             const imageUrl = URL.createObjectURL(imageBlob);
@@ -110,7 +141,7 @@ async function generateResponse(message, loadingDiv) {
     } catch (error) {
         console.error('Errore nella generazione della risposta:', error);
         loadingDiv.remove();
-        addMessage("C'è stato un errore nel generare la risposta.", 'bot');
+        addMessage(currentLanguage === 'en' ? "There was an error generating the response." : "C'è stato un errore nel generare la risposta.", 'bot');
     }
 }
     
