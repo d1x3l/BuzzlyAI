@@ -1,5 +1,7 @@
+import { generateResponse } from './pollinations.js';
+
 document.addEventListener("DOMContentLoaded", () => {
-    addMessage(getWelcomeMessage(), 'bot');
+    addMessage(getWelcomeMessage(), 'bot', '', true);
 });
 
 let currentLanguage = 'it';
@@ -7,7 +9,6 @@ let currentLanguage = 'it';
 const languageSelector = document.getElementById("language-selector");
 languageSelector.addEventListener("change", (event) => {
     currentLanguage = event.target.value;
-    clearChat();
     updateUI();
 });
 
@@ -18,25 +19,14 @@ function getWelcomeMessage() {
     return "Ciao! Sono Buzzly AI, il tuo assistente virtuale. Come posso aiutarti oggi?";
 }
 
-function updateUI() {
-    const userInput = document.getElementById("user-input");
-    const sendBtn = document.getElementById("send-btn");
-    const clearBtn = document.getElementById("clear-btn");
-
-    if (currentLanguage === 'en') {
-        userInput.placeholder = "Type a message to Buzzly AI...";
-        sendBtn.textContent = "Send";
-        clearBtn.textContent = "Clear";
-    } else {
-        userInput.placeholder = "Scrivi un messaggio a Buzzly AI...";
-        sendBtn.textContent = "Invia";
-        clearBtn.textContent = "Pulisci";
-    }
-}
-
-function addMessage(content, sender, imageUrl = '') {
+// Funzione di aggiunta messaggi (con ID al messaggio di benvenuto)
+function addMessage(content, sender, imageUrl = '', isWelcomeMessage = false) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', sender);
+
+    if (isWelcomeMessage) {
+        messageElement.setAttribute('id', 'welcome-message');
+    }
 
     const iconElement = document.createElement('div');
     iconElement.classList.add('icon');
@@ -44,16 +34,16 @@ function addMessage(content, sender, imageUrl = '') {
 
     const contentElement = document.createElement('div');
     contentElement.classList.add('message-content');
+
     if (imageUrl) {
+        // Codice per aggiungere immagine e bottone di download
         const imageElement = document.createElement('img');
         imageElement.src = imageUrl;
         imageElement.style.maxWidth = '100%';
-
         contentElement.appendChild(imageElement);
-
+        
         const downloadButton = document.createElement('div');
         downloadButton.classList.add('download-button');
-
         const downloadIcon = document.createElement('img');
         downloadIcon.src = 'icons/download.png';
         downloadButton.appendChild(downloadIcon);
@@ -76,9 +66,30 @@ function addMessage(content, sender, imageUrl = '') {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+// Aggiornamento della UI per cambiare la lingua senza eliminare la chat
+function updateUI() {
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const welcomeMessage = document.getElementById("welcome-message");
+
+    if (currentLanguage === 'en') {
+        userInput.placeholder = "Type a message to Buzzly AI...";
+        sendBtn.textContent = "Send";
+        clearBtn.textContent = "Clear";
+        if (welcomeMessage) welcomeMessage.querySelector('.message-content').innerHTML = "Hello! I'm Buzzly AI, your virtual assistant. How can I help you today?";
+    } else {
+        userInput.placeholder = "Scrivi un messaggio a Buzzly AI...";
+        sendBtn.textContent = "Invia";
+        clearBtn.textContent = "Pulisci";
+        if (welcomeMessage) welcomeMessage.querySelector('.message-content').innerHTML = "Ciao! Sono Buzzly AI, il tuo assistente virtuale. Come posso aiutarti oggi?";
+    }
+}
+
+// Funzione per pulire la chat e reinserire il messaggio di benvenuto (solo se non è già presente)
 function clearChat() {
     chatMessages.innerHTML = '';
-    addMessage(getWelcomeMessage(), 'bot');
+    addMessage(getWelcomeMessage(), 'bot', '', true);
 }
 
 const clearBtn = document.getElementById("clear-btn");
@@ -121,30 +132,6 @@ async function sendMessage() {
     }
 }
 
-async function generateResponse(message, loadingDiv) {
-    try {
-
-        if (/\b(genera|disegna|immagine|foto|generate|draw|image|photo|generates)\b/i.test(message)) {
-            const imageResponse = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(message)}?nologo=true`);
-            const imageBlob = await imageResponse.blob();
-            const imageUrl = URL.createObjectURL(imageBlob);
-
-            loadingDiv.remove();
-            addMessage("", 'bot', imageUrl);
-        } else {
-            const textResponse = await fetch(`https://text.pollinations.ai/${encodeURIComponent(message)}`);
-            const text = await textResponse.text();
-
-            loadingDiv.remove();
-            addMessage(text, 'bot');
-        }
-    } catch (error) {
-        console.error('Errore nella generazione della risposta:', error);
-        loadingDiv.remove();
-        addMessage(currentLanguage === 'en' ? "There was an error generating the response." : "C'è stato un errore nel generare la risposta.", 'bot');
-    }
-}
-    
 const userInput = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 const chatMessages = document.querySelector(".chat-messages");
@@ -156,3 +143,6 @@ userInput.addEventListener("keydown", (e) => {
         sendMessage();
     }
 });
+
+export { addMessage };
+
